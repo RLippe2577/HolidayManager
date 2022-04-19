@@ -12,13 +12,14 @@ from dataclasses import dataclass
 # 2. You may need to add additional functions
 # 3. You may drop the init if you are using @dataclasses
 # --------------------------------------------
-#class Holiday:
+class Holiday:
       
-    #def __init__(self,name, date):
-        #Your Code Here        
+    def __init__(self,name, date):
+        self.name = name
+        self.date = date      
     
-    #def __str__ (self):
-        # String output
+    def __str__ (self):
+        return (self.__name, self.__date)
         # Holiday output when printed.
           
            
@@ -39,7 +40,7 @@ class HolidayList:
                 correct = 1
             else:
                 self.innerHolidays.append(holidayObj)
-
+                print('You have added a holiday')
         # Make sure holidayObj is an Holiday Object by checking the type
         # Use innerHolidays.append(holidayObj) to add holiday
         # print to the user that you added a holiday
@@ -55,27 +56,40 @@ class HolidayList:
 
     def read_json():
         f = open('HolidayManager\holidays.JSON', 'r')
-        read = json.load(f)
+        load = json.load(f)
         f.close
-
-        for i in read:
-
-        return read
-        # Read in things from json file location
-        # Use addHoliday function to add holidays to inner list.
+        temp = []
+        currentHolidays = []
+        dates1 = []
+        names = []
+        for i in load:
+            for x in load[i]:
+                temp.append(x)
+        #print(type(temp[1]['name'])) #Testing print statements
+        #print(temp[1]['date'])
+        #print(temp)
+        for a in temp:
+            currentHolidays.append([temp[1]['name'], temp[1]['date']])
+        print(currentHolidays) #Array formated as (Name, Date), (Name, Date)
+            # Read in things from json file location
+            # Use addHoliday function to add holidays to inner list.
 
     #def save_to_json(filelocation):
         # Write out json file to selected file.
         
     def scrapeHolidays(self):
-        html = requests.get(f"https://www.timeanddate.com/holidays/us/2020?hol=33554809")
-        soup = BeautifulSoup(html.text, 'html.parser')
-        table = soup.find('tbody')
-        rows = table.find_all(attrs = {'class':'showrow'})
-        name = rows[1].find('a').text
-        date = rows[1].find('th').text
-        print(name)
-        print(date)   
+        years = [2020, 2021, 2022, 2023, 2024]
+        for year in years:
+            html = requests.get(f'https://www.timeanddate.com/holidays/us/'year'?hol=33554809')
+            soup = BeautifulSoup(html.text, 'html.parser')
+            table = soup.find('tbody')
+            rows = table.find_all(attrs = {'class':'showrow'})
+            
+            for row in rows:
+                date = self.datechange(row.find('th').text, year)
+                name = row.find('a').text
+                newholiday = Holiday(name, date)
+                self.innerHolidays.append(newholiday)  
 
     def numHolidays(self):
         total = len(self.innerHolidays)
