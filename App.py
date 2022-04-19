@@ -1,4 +1,4 @@
-import datetime
+from datetime import datetime as dt
 import json
 from bs4 import BeautifulSoup
 from pandas import read_json
@@ -45,7 +45,7 @@ class HolidayList:
         # Use innerHolidays.append(holidayObj) to add holiday
         # print to the user that you added a holiday
 
-    #def findHoliday(HolidayName, Date):
+    # def findHoliday(HolidayName, Date):
         # Find Holiday in innerHolidays
         # Return Holiday
 
@@ -74,8 +74,16 @@ class HolidayList:
             # Read in things from json file location
             # Use addHoliday function to add holidays to inner list.
 
-    #def save_to_json(filelocation):
-        # Write out json file to selected file.
+    def save_to_json(self):
+        f = open('HolidayManager\Test.JSON', "w")
+        json.dump(self.innerHolidays, f)
+        f.close()
+    
+    def datechange(monthDay, year):
+        format = dt.strptime((monthDay + ' ' + year),'%b %d %Y')
+        canadianDateFormat = '%Y-%m-%d'
+        aDate = dt.strftime(format, canadianDateFormat)
+        print(aDate)
         
     def scrapeHolidays(self):
         years = [2020, 2021, 2022, 2023, 2024]
@@ -107,13 +115,13 @@ class HolidayList:
         # Output formated holidays in the week. 
         # * Remember to use the holiday __str__ method.
 
-    #def getWeather(weekNum):
+    #def getWeather(weekNum): #No Weather API will be used 
         # Convert weekNum to range between two days
         # Use Try / Except to catch problems
         # Query API for weather in that week range
         # Format weather information and return weather string.
 
-    #def viewCurrentWeek():
+    #def viewCurrentWeek():  #No Weather API will be used 
         # Use the Datetime Module to look up current week and year
         # Use your filter_holidays_by_week function to get the list of holidays 
         # for the current week/year
@@ -158,5 +166,4 @@ class HolidayList:
 
 
 
-stuff = read_json()
-print(stuff)
+
