@@ -6,6 +6,7 @@ import requests
 from dataclasses import dataclass
 
 
+
 # -------------------------------------------
 # Modify the holiday class to 
 # 1. Only accept Datetime objects for date.
@@ -32,15 +33,17 @@ class Holiday:
 class HolidayList:
     def __init__(self):
        self.innerHolidays = []
+       self.currentHolidays = []
    
-    def addHoliday(self, holidayObj):
-        correct = 0
-        while correct == 0:
-            if type(holidayObj) == object:
-                correct = 1
-            else:
-                self.innerHolidays.append(holidayObj)
-                print('You have added a holiday')
+    def addHoliday(self, holidayname, date):
+        holidarray = [holidayname, date]
+        if holidarray in self.innerHolidays:
+            self.currentHolidays.append(holidarray)
+            print('The holiday has been added')
+            return 1
+        else:
+            print('That holiday was not found, returning to main menu')
+            return 0
         # Make sure holidayObj is an Holiday Object by checking the type
         # Use innerHolidays.append(holidayObj) to add holiday
         # print to the user that you added a holiday
@@ -49,17 +52,24 @@ class HolidayList:
         # Find Holiday in innerHolidays
         # Return Holiday
 
-    #def removeHoliday(HolidayName, Date):
+    def removeHoliday(self, HolidayName, Date):
+        holidarray = [HolidayName, Date]
+        if holidarray in self.currentHolidays:
+            self.currentHolidays.remove(holidarray)
+            print('The holiday has been removed')
+            return 1
+        else:
+            print('That holiday was not found, returning to main menu')
+            return 0
         # Find Holiday in innerHolidays by searching the name and date combination.
         # remove the Holiday from innerHolidays
         # inform user you deleted the holiday
 
-    def read_json():
+    def read_json(self):
         f = open('HolidayManager\holidays.JSON', 'r')
         load = json.load(f)
         f.close
         temp = []
-        currentHolidays = []
         dates1 = []
         names = []
         for i in load:
@@ -69,35 +79,45 @@ class HolidayList:
         #print(temp[1]['date'])
         #print(temp)
         for a in temp:
-            currentHolidays.append([temp[1]['name'], temp[1]['date']])
-        print(currentHolidays) #Array formated as (Name, Date), (Name, Date)
+            self.currentHolidays.append([a['name'], a['date']])
+        #Array formated as (Name, Date), (Name, Date)
+        #return self.currentHolidays
+        
             # Read in things from json file location
             # Use addHoliday function to add holidays to inner list.
 
     def save_to_json(self):
+        list1 = []
+        for i in self.currentHolidays:
+            namedate = i
+            list1.append({'name' : namedate[0], 'date' : namedate[1]})
+        jsonHolidays = {'Holidays' : list1}
         f = open('HolidayManager\Test.JSON', "w")
-        json.dump(self.innerHolidays, f)
+        json.dump(jsonHolidays, f)
         f.close()
     
-    def datechange(monthDay, year):
-        format = dt.strptime((monthDay + ' ' + year),'%b %d %Y')
+    def datechange(monthday, year):
+        format = dt.strptime((monthday + ' ' + str(year)),'%b %d %Y')
         canadianDateFormat = '%Y-%m-%d'
         aDate = dt.strftime(format, canadianDateFormat)
-        print(aDate)
+        return aDate
         
     def scrapeHolidays(self):
         years = [2020, 2021, 2022, 2023, 2024]
         for year in years:
-            html = requests.get(f'https://www.timeanddate.com/holidays/us/'year'?hol=33554809')
+            html = requests.get(f'https://www.timeanddate.com/holidays/us/{year}?hol=33554809')
             soup = BeautifulSoup(html.text, 'html.parser')
             table = soup.find('tbody')
             rows = table.find_all(attrs = {'class':'showrow'})
             
             for row in rows:
-                date = self.datechange(row.find('th').text, year)
+                date = row.find('th').text
+                date1 = str(date)
+                date2 = HolidayList.datechange(date1, year)
                 name = row.find('a').text
-                newholiday = Holiday(name, date)
-                self.innerHolidays.append(newholiday)  
+                newholiday = Holiday(name, date2)
+                newholiday1 = [name, date2]
+                self.innerHolidays.append(newholiday1)  
 
     def numHolidays(self):
         total = len(self.innerHolidays)
@@ -121,17 +141,70 @@ class HolidayList:
         # Query API for weather in that week range
         # Format weather information and return weather string.
 
-    #def viewCurrentWeek():  #No Weather API will be used 
+    #def viewCurrentWeek():  
         # Use the Datetime Module to look up current week and year
         # Use your filter_holidays_by_week function to get the list of holidays 
         # for the current week/year
         # Use your displayHolidaysInWeek function to display the holidays in the week
-        # Ask user if they want to get the weather
-        # If yes, use your getWeather function and display results
 
 
 
-#def main():
+
+def main():
+    hidden = HolidayList()
+    hidden.read_json()
+    changes = 0
+    stop = 0
+    hidden.scrapeHolidays()
+    while stop == 0:
+        print('Holiday Menu \n'
+    '================ \n'
+    '1. Add a Holiday \n'
+    '2. Remove a Holiday \n'
+    '3. Save Holiday List \n'
+    '4. View Holidays \n'
+    '5. Exit')
+        input1 = input('Please enter a number for options 1-5 : ')
+        if input1 == '5':
+            if changes == 0:
+                print('You have no unsaved changes, have a nice day')
+                stop = 1
+            else:
+                print('You have unsaved changes, would you like to save?')
+                input2 = input('Please enter yes or no : ')
+                if input2 == 'no':
+                    print('Very well, have a nice day')
+                    stop = 1
+                elif input2 == 'yes':
+                    hidden.save_to_json()
+                    print('Your changes have been saved, have a nice day')
+                    stop = 1
+                else:
+                    print('invalid input, please try again from main menu')
+        elif input1 == '3':
+            if changes == 0:
+                print('There were no changes to save, returning to main menu')
+            else:
+                hidden.save_to_json()
+                print('Your changes have been saved, returning to menu')
+                changes = 0
+        elif input1 == '2':
+            input3 = input('Please enter a valid Holiday to remove (case sensitive, capitilize the start of each word): ')
+            input4 = input('Please enter the date for the holiday in YYYY-MM-DD (include dashes) : ')
+            success = hidden.removeHoliday(input3, input4)
+            if success == 1:
+                changes = 1
+        elif input1 == '1':
+            input5 = input('Please enter a valid Holiday to add (case sensitive, capitilize the start of each word): ')
+            input6 = input('Please enter the date for the holiday in YYYY-MM-DD (include dashes) : ')
+            success = hidden.addHoliday(input5, input6)
+            if success == 1:
+                changes = 1
+        elif input1 == '4':
+            print('Figuring out Display Now')
+        else:
+            print('Error, invalid input, please try again')
+
     # Large Pseudo Code steps
     # -------------------------------------
     # 1. Initialize HolidayList Object
@@ -166,4 +239,8 @@ class HolidayList:
 
 
 
+main()
 
+#stuff = HolidayList()
+#rest = stuff.read_json()
+#rest
