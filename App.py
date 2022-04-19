@@ -124,7 +124,9 @@ class HolidayList:
         return total
         # Return the total number of holidays in innerHolidays
     
-    #def filter_holidays_by_week(year, week_number):
+    def filter_holidays_by_week(year, week_number):
+        print('working on it')
+        Holidayweek = list(filter(lambda a:7))
         # Use a Lambda function to filter by week number and save this as holidays, use the filter on innerHolidays
         # Week number is part of the the Datetime object
         # Cast filter results as list
@@ -201,7 +203,9 @@ def main():
             if success == 1:
                 changes = 1
         elif input1 == '4':
-            print('Figuring out Display Now')
+            input7 = input('Please enter a valid year from 2020-2024: ')
+            input8 = input('Please enter a week from 1-52, or blank for current week : ')
+
         else:
             print('Error, invalid input, please try again')
 
